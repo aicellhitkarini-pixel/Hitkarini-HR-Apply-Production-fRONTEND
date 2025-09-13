@@ -18,7 +18,7 @@ import {
   FaSun,
 } from "react-icons/fa"
 
-const API_BASE = "http://localhost:8000/api"
+const API_BASE = "https://whale-app-25bar.ondigitalocean.app/api"
 
 const Dashboard = () => {
   const [darkMode, setDarkMode] = useState(false)
