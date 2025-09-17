@@ -1,5 +1,5 @@
 // App.jsx
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import './App.css'
 import Dashboard from './Pages/Dashboard'
 import ApplicationForm from './Pages/AddProfile'
@@ -13,6 +13,7 @@ function AdminLogin({ onLogin }) {
   const handleSubmit = (e) => {
     e.preventDefault();
     if (username === "hitkarini@admin" && password === "hiktarini@hrauth") {
+      localStorage.setItem("isAdmin", "true"); // ✅ store login state
       onLogin();
     } else {
       setError("Invalid credentials");
@@ -48,6 +49,14 @@ function AdminLogin({ onLogin }) {
 
 function App() {
   const [isAdmin, setIsAdmin] = useState(false);
+
+  // ✅ Check localStorage when app loads
+  useEffect(() => {
+    const storedAdmin = localStorage.getItem("isAdmin");
+    if (storedAdmin === "true") {
+      setIsAdmin(true);
+    }
+  }, []);
 
   return (
     <BrowserRouter>
