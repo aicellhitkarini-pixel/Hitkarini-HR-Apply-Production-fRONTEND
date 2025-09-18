@@ -871,7 +871,7 @@ export default function ApplicationForm() {
                   </label>
                 </div>
 
-                // Find and replace the disability percentage Input component
+                
 {form.physicalDisability && (
   <Input
     label="Disability Percentage (%)"
