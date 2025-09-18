@@ -40,6 +40,17 @@ const steps = [
 
 const BLOOD_GROUPS = ["A+", "A-", "B+", "B-", "AB+", "AB-", "O+", "O-"]
 
+// Add this constant for religions
+const RELIGIONS = [
+  "Hindu",
+  "Muslim", 
+  "Sikh",
+  "Christian",
+  "Buddhist",
+  "Jain",
+  "Other"
+];
+
 const INDIAN_REGIONS = [
   "Andhra Pradesh",
   "Arunachal Pradesh",
@@ -204,98 +215,94 @@ export default function ApplicationForm() {
       "IITs",
       "IISc",
       "IIIT-H",
-      "NITs (Top 10)",
-      "NIRF Top 30",
+      "NITs",
+      "NIRF Top Ranked",
       "Govt Regional Engineering Colleges",
-      "NBA/NAAC A/A+",
+      "NBA/NAAC A/A+ Accredited",
       "NAAC Accredited Institutions",
-      "Others (non-accredited or low-ranked)",
-      "Other",
+      "Non-accredited Institutions",
+      "Other"
     ],
     Dental: [
       "AIIMS",
       "PGI",
-      "NIRF Top 10 Dental Colleges",
+      "NIRF Top Ranked Dental Colleges",
       "Govt Dental Colleges",
-      "NAAC A/A+",
-      "Private Dental Colleges (NAAC B+ or above)",
-      "Others (non-accredited or low-ranked)",
-      "Other",
+      "NAAC A/A+ Accredited",
+      "Private Dental Colleges",
+      "Non-accredited Institutions",
+      "Other"
     ],
     Nursing: [
       "Nationally Prestigious Institutions",
-      "Government & Accredited Institutions",
-      "Private Colleges with Accreditation",
-      "Others / Non-accredited Institutions",
-      "Other",
+      "Government Institutions",
+      "Private Accredited Institutions",
+      "Non-accredited Institutions",
+      "Other"
     ],
     Law: [
       "National Law Universities (NLUs)",
-      "NIRF Top 10 Law Colleges",
+      "NIRF Top Ranked Law Colleges",
       "Govt Law Colleges",
-      "Private Law Colleges (NAAC B+)",
-      "Others (non-accredited or low-ranked)",
-      "Other",
+      "Private Law Colleges",
+      "Non-accredited Institutions",
+      "Other"
     ],
     Pharmacy: [
       "NIPERs",
-      "State Govt Pharmacy Colleges",
-      "PCI approved",
-      "PCI recognized private universities (NAAC B+)",
-      "Others / Non-accredited Institutions",
-      "Other",
+      "Govt Pharmacy Colleges",
+      "PCI Approved Institutions",
+      "Private PCI Recognized Universities",
+      "Non-accredited Institutions",
+      "Other"
     ],
     Education: [
       "Central Universities",
-      "NIRF Top 30",
-      "NAAC A++",
+      "NIRF Top Ranked",
+      "NAAC A++ Institutions",
       "State Universities",
-      "NAAC A/A+",
-      "Autonomous Colleges (NAAC B+)",
-      "Others (non-accredited or low-ranked)",
-      "Other",
+      "Private Universities",
+      "Autonomous Colleges",
+      "Other"
     ],
     Commerce: [
       "Central Universities",
-      "NIRF Top 30",
-      "NAAC A++",
+      "NIRF Top Ranked",
+      "NAAC A++ Institutions",
       "State Universities",
-      "NAAC A/A+",
-      "Autonomous Colleges (NAAC B+)",
-      "Others (non-accredited or low-ranked)",
-      "Other",
+      "Private Universities",
+      "Autonomous Colleges",
+      "Other"
     ],
     Arts: [
       "Central Universities",
-      "NIRF Top 30",
-      "NAAC A++",
+      "NIRF Top Ranked",
+      "NAAC A++ Institutions",
       "State Universities",
-      "NAAC A/A+",
-      "Autonomous Colleges (NAAC B+)",
-      "Others (non-accredited or low-ranked)",
-      "Other",
+      "Private Universities",
+      "Autonomous Colleges",
+      "Other"
     ],
     Science: [
       "Central Universities",
-      "NIRF Top 30",
-      "NAAC A++",
+      "NIRF Top Ranked",
+      "NAAC A++ Institutions",
       "State Universities",
-      "NAAC A/A+",
-      "Autonomous Colleges (NAAC B+)",
-      "Others (non-accredited or low-ranked)",
-      "Other",
+      "Private Universities",
+      "Autonomous Colleges",
+      "Other"
     ],
     Management: [
+      "IIMs",
       "Central Universities",
-      "NIRF Top 30",
-      "NAAC A++",
+      "NIRF Top Ranked",
+      "NAAC A++ Institutions",
       "State Universities",
-      "NAAC A/A+",
-      "Autonomous Colleges (NAAC B+)",
-      "Others (non-accredited or low-ranked)",
-      "Other",
+      "Private Universities",
+      "Autonomous Colleges",
+      "Other"
     ],
-    Other: ["Other"],
+    Other: ["Other"]
   }
 
   // Tier-aware mapping: collegeType -> details per Tier.
@@ -687,26 +694,43 @@ export default function ApplicationForm() {
       )}
 
       {(() => {
-        const list = computeDetailsList(
-          form.educationCategory.category,
-          form.educationCategory.collegeType,
-        )
+        const list = DETAILS_OPTIONS[form.educationCategory.collegeType] || ["Other"];
         return (
-          <Input
-            as="select"
-            label="Details"
-            value={form.educationCategory.details}
-            onChange={(v) =>
-              setField("educationCategory", { ...form.educationCategory, details: v })
-            }
-          >
-            {/* Details Types */}
-            {list.map((opt) => (
-              <option key={opt} value={opt}>
-                {opt}
-              </option>
-            ))}
-          </Input>
+          <>
+            <Input
+              as="select"
+              label="Details"
+              value={form.educationCategory.details}
+              onChange={(v) =>
+                setField("educationCategory", { 
+                  ...form.educationCategory, 
+                  details: v,
+                  detailsRemark: v === "Other" ? form.educationCategory.detailsRemark : ""
+                })
+              }
+            >
+              <option value="">Select Details</option>
+              {list.map((opt) => (
+                <option key={opt} value={opt}>
+                  {opt}
+                </option>
+              ))}
+            </Input>
+
+            {form.educationCategory.details === "Other" && (
+              <Input
+                label="Please specify details"
+                value={form.educationCategory.detailsRemark}
+                onChange={(v) =>
+                  setField("educationCategory", { 
+                    ...form.educationCategory, 
+                    detailsRemark: v 
+                  })
+                }
+                placeholder="Enter your institution details"
+              />
+            )}
+          </>
         )
       })()}
 
@@ -743,7 +767,7 @@ export default function ApplicationForm() {
                   onChange={(v) => setField("subjectOrDepartment", v)}
                 />
 
-                <Input label="Full Name *" value={form.fullName} onChange={(v) => setField("fullName", v)} />
+                <Input label="Full Name *" value={form.fullName?.toUpperCase() || ''} onChange={(v) => setField("fullName", v.toUpperCase())} />
 
                 <Input
                   label="Date of Birth *"
@@ -780,18 +804,48 @@ export default function ApplicationForm() {
                   <option value="ST">ST</option>
                 </Input>
 
-                <Input label="Religion" value={form.religion} onChange={(v) => setField("religion", v)} />
-
-                <Input label="Nationality" value={form.nationality} onChange={(v) => setField("nationality", v)} />
-
-                <Input label="Region/State" as="select" value={form.region} onChange={(v) => setField("region", v)}>
-                  <option value="">Select Region/State</option>
-                  {INDIAN_REGIONS.map((region) => (
-                    <option key={region} value={region}>
-                      {region}
+                <Input label="Religion" as="select" value={form.religion} onChange={(v) => setField("religion", v)}>
+                  <option value="">Select Religion</option>
+                  {RELIGIONS.map(religion => (
+                    <option key={religion} value={religion}>
+                      {religion}
                     </option>
                   ))}
                 </Input>
+
+                <Input 
+                  label="Nationality" 
+                  as="select"
+                  value={form.nationality} 
+                  onChange={(v) => setField("nationality", v)}
+                >
+                  <option value="">Select Nationality</option>
+                  <option value="Indian">Indian</option>
+                  <option value="Foreigner">Foreigner</option>
+                </Input>
+
+                {form.nationality === "Indian" ? (
+                  <Input 
+                    label="Region/State" 
+                    as="select" 
+                    value={form.region} 
+                    onChange={(v) => setField("region", v)}
+                  >
+                    <option value="">Select Region/State</option>
+                    {INDIAN_REGIONS.map((region) => (
+                      <option key={region} value={region}>
+                        {region}
+                      </option>
+                    ))}
+                  </Input>
+                ) : form.nationality === "Foreigner" ? (
+                  <Input
+                    label="Country Name"
+                    value={form.countryName}
+                    onChange={(v) => setField("countryName", v)}
+                    placeholder="Enter your country name"
+                  />
+                ) : null}
 
                 <div>
                   <label className="block mb-1 text-sm font-medium text-gray-700">
@@ -817,16 +871,17 @@ export default function ApplicationForm() {
                   </label>
                 </div>
 
-                {form.physicalDisability && (
-                  <Input
-                    label="Disability Percentage (%)"
-                    type="number"
-                    min="0"
-                    max="100"
-                    value={form.disabilityPercentage}
-                    onChange={(v) => setField("disabilityPercentage", v)}
-                  />
-                )}
+                // Find and replace the disability percentage Input component
+{form.physicalDisability && (
+  <Input
+    label="Disability Percentage (%)"
+    type="number"
+    min="0"
+    max="100"
+    value={form.disabilityPercentage}
+    onChange={(v) => setField("disabilityPercentage", Math.max(0, Math.min(100, Number(v))))}
+  />
+)}
 
                 <Input
                   label="Marital Status"
@@ -850,8 +905,10 @@ export default function ApplicationForm() {
                     <Input
                       label="Children (number)"
                       type="number"
+                      min="0"
+                      max="100"
                       value={form.children}
-                      onChange={(v) => setField("children", v)}
+                      onChange={(v) => setField("children", Math.max(0, Math.min(100, Number(v))))}
                     />
                   </>
                 )}
@@ -1008,8 +1065,15 @@ export default function ApplicationForm() {
                       <Input
                         label="Year of Passing"
                         type="number"
+                        min="0"
+                        max={new Date().getFullYear()}
                         value={edu.yearOfPassing}
-                        onChange={(v) => setNestedArrayItem("educationQualifications", idx, "yearOfPassing", v)}
+                        onChange={(v) => setNestedArrayItem(
+                          "educationQualifications", 
+                          idx, 
+                          "yearOfPassing", 
+                          Math.max(0, Math.min(new Date().getFullYear(), Number(v)))
+                        )}
                       />
                       <Input
                         label="Percentage or CGPA"
@@ -1104,8 +1168,14 @@ export default function ApplicationForm() {
                           <Input
                             label="Net Monthly Salary"
                             type="number"
+                            min="0"
                             value={job.netMonthlySalary}
-                            onChange={(v) => setNestedArrayItem("workExperience", idx, "netMonthlySalary", v)}
+                            onChange={(v) => setNestedArrayItem(
+                              "workExperience", 
+                              idx, 
+                              "netMonthlySalary", 
+                              Math.max(0, Number(v))
+                            )}
                           />
                           <Input
                             label="Reason Of Leaving"
@@ -1123,9 +1193,11 @@ export default function ApplicationForm() {
                     </label>
                     <input
                       type="number"
+                      min="0"
+                      max="100"
                       className="border p-2 rounded w-48"
                       value={form.totalWorkExperience}
-                      onChange={(e) => setField("totalWorkExperience", e.target.value)}
+                      onChange={(e) => setField("totalWorkExperience", Math.max(0, Math.min(100, Number(e.target.value))))}
                     />
                   </div>
                 </>
@@ -1213,7 +1285,7 @@ export default function ApplicationForm() {
                         onChange={(v) => setNestedArrayItem("references", idx, "designation", v)}
                       />
                       <Input
-                        label="Contact"
+                        label="Contact Number"  // Changed from "Contact"
                         value={ref.contact}
                         onChange={(v) => setNestedArrayItem("references", idx, "contact", v)}
                       />
@@ -1266,18 +1338,21 @@ export default function ApplicationForm() {
               <h2 className="text-xl font-semibold mb-4">Social Profiles</h2>
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <Input
-                  label="LinkedIn"
+                  label="LinkedIn URL"  // Changed from "LinkedIn"
                   value={form.socialMedia.linkedin}
+                  placeholder="https://linkedin.com/in/username"
                   onChange={(v) => setField("socialMedia", { ...form.socialMedia, linkedin: v })}
                 />
                 <Input
-                  label="Facebook"
+                  label="Facebook URL"  // Changed from "Facebook"
                   value={form.socialMedia.facebook}
+                  placeholder="https://facebook.com/username"
                   onChange={(v) => setField("socialMedia", { ...form.socialMedia, facebook: v })}
                 />
                 <Input
-                  label="Instagram"
+                  label="Instagram URL"  // Changed from "Instagram"
                   value={form.socialMedia.instagram}
+                  placeholder="https://instagram.com/username"
                   onChange={(v) => setField("socialMedia", { ...form.socialMedia, instagram: v })}
                 />
               </div>
