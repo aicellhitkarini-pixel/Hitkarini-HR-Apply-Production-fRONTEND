@@ -960,13 +960,29 @@ export default function ApplicationForm() {
 
                 <Input
                   label="Mobile Number *"
+                  type="tel"
+                  maxLength="10"
                   value={form.mobileNumber}
-                  onChange={(v) => setField("mobileNumber", v)}
+                  onChange={(v) => {
+                    // Only allow numbers and limit to 10 digits
+                    const numbers = v.replace(/\D/g, '').slice(0, 10)
+                    setField("mobileNumber", numbers)
+                  }}
                 />
                 <Input
                   label="Emergency Mobile Number"
+                  type="tel"
+                  maxLength="10"
                   value={form.emergencyMobileNumber}
-                  onChange={(v) => setField("emergencyMobileNumber", v)}
+                  onChange={(v) => {
+                    // Only allow numbers and limit to 10 digits
+                    const numbers = v.replace(/\D/g, '').slice(0, 10)
+                    if (numbers === form.mobileNumber) {
+                      pushToast("error", "Emergency number cannot be same as primary mobile number")
+                      return
+                    }
+                    setField("emergencyMobileNumber", numbers)
+                  }}
                 />
                 <Input label="Email *" type="email" value={form.email} onChange={(v) => setField("email", v)} />
               </div>
