@@ -18,7 +18,7 @@ import {
   FaSun,
 } from "react-icons/fa"
 
-const API_BASE = "http://localhost:8000/api"
+const API_BASE = "https://hitkarini-hr-wksup.ondigitalocean.app/api"
 
 const Dashboard = () => {
   const [darkMode, setDarkMode] = useState(false)
@@ -31,6 +31,7 @@ const Dashboard = () => {
   const [totalPages, setTotalPages] = useState(1)
 
   const [filters, setFilters] = useState({
+    applicationType: "",
     applyingFor: "",
     gender: "",
     maritalStatus: "",
@@ -111,6 +112,7 @@ const Dashboard = () => {
       const serverFilters = {
         page,
         limit,
+        applicationType: filters.applicationType || undefined,
         applyingFor: filters.applyingFor || undefined,
         gender: filters.gender || undefined,
         maritalStatus: filters.maritalStatus || undefined,
@@ -148,6 +150,7 @@ const Dashboard = () => {
     setPage(1)
     fetchApplications({ page: 1 })
   }, [
+    filters.applicationType,
     filters.applyingFor,
     filters.gender,
     filters.maritalStatus,
@@ -208,6 +211,11 @@ const Dashboard = () => {
 
       // status filter (client-side)
       if (filters.status && (it.status || "") !== filters.status) {
+        return false
+      }
+
+      // application type (school/college)
+      if (filters.applicationType && (it.applicationType || "") !== filters.applicationType) {
         return false
       }
 
@@ -497,6 +505,9 @@ const Dashboard = () => {
                         Position
                       </th>
                       <th className="px-6 py-4 text-left text-sm font-semibold text-gray-700 dark:text-gray-200">
+                        Application Type
+                      </th>
+                      <th className="px-6 py-4 text-left text-sm font-semibold text-gray-700 dark:text-gray-200">
                         Subject/Department
                       </th>
                       <th className="px-6 py-4 text-left text-sm font-semibold text-gray-700 dark:text-gray-200">
@@ -516,7 +527,7 @@ const Dashboard = () => {
                   <tbody className="divide-y divide-gray-100 dark:divide-gray-600">
                     {applyClientFilters(applications).length === 0 && !loading ? (
                       <tr>
-                        <td colSpan={9} className="px-6 py-12 text-center">
+                        <td colSpan={10} className="px-6 py-12 text-center">
                           <div className="flex flex-col items-center gap-3">
                             <div className="w-16 h-16 bg-gradient-to-br from-gray-100 to-gray-200 dark:from-gray-700 dark:to-gray-600 rounded-2xl flex items-center justify-center">
                               <FaUsers className="text-2xl text-gray-400 dark:text-gray-300" />
@@ -570,6 +581,23 @@ const Dashboard = () => {
                             <span className="inline-flex items-center px-3 py-1 rounded-full text-xs font-medium bg-gradient-to-r from-gray-100 to-gray-200 dark:from-gray-600 dark:to-gray-500 text-gray-700 dark:text-gray-200">
                               {app.applyingFor}
                             </span>
+                          </td>
+                          <td className="px-6 py-4">
+                            {(() => {
+                              const t = (app.applicationType || "-").toString();
+                              const isCollege = t.toLowerCase() === "college";
+                              const isSchool = t.toLowerCase() === "school";
+                              const cls = isCollege
+                                ? "from-violet-100 to-violet-200 dark:from-violet-700 dark:to-violet-600 text-violet-900 dark:text-white"
+                                : isSchool
+                                ? "from-emerald-100 to-emerald-200 dark:from-emerald-700 dark:to-emerald-600 text-emerald-900 dark:text-white"
+                                : "from-gray-100 to-gray-200 dark:from-gray-600 dark:to-gray-500 text-gray-700 dark:text-gray-200";
+                              return (
+                                <span className={`inline-flex items-center px-3 py-1 rounded-full text-xs font-medium bg-gradient-to-r ${cls}`}>
+                                  {t || "-"}
+                                </span>
+                              );
+                            })()}
                           </td>
                           <td className="px-6 py-4">
                             <div className="text-sm text-gray-600 dark:text-gray-300">
@@ -694,6 +722,20 @@ const Dashboard = () => {
                     placeholder="Search all fields (name, email, mobile, position, subject, education, work, etc.)"
                     className="w-full px-3 py-2 border border-gray-200 dark:border-gray-600 rounded-lg text-sm bg-white dark:bg-gray-700 text-gray-800 dark:text-gray-100 focus:ring-2 focus:ring-gray-400 dark:focus:ring-gray-500 focus:border-transparent transition-all duration-200"
                   />
+                </div>
+
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 dark:text-gray-200 mb-2">Application Type</label>
+                  <select
+                    name="applicationType"
+                    value={filters.applicationType}
+                    onChange={handleFilterChange}
+                    className="w-full px-3 py-2 border border-gray-200 dark:border-gray-600 rounded-lg text-sm bg-white dark:bg-gray-700 text-gray-800 dark:text-gray-100 focus:ring-2 focus:ring-gray-400 dark:focus:ring-gray-500 focus:border-transparent transition-all duration-200"
+                  >
+                    <option value="">All types</option>
+                    <option value="school">School</option>
+                    <option value="college">College</option>
+                  </select>
                 </div>
 
                 <div>
@@ -851,6 +893,7 @@ const Dashboard = () => {
                   <button
                     onClick={() => {
                       setFilters({
+                        applicationType: "",
                         applyingFor: "",
                         gender: "",
                         maritalStatus: "",
