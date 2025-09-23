@@ -214,14 +214,11 @@ const Dashboard = () => {
         return false
       }
 
-<<<<<<< HEAD
       // application type (school/college)
-      if (filters.applicationType && (it.applicationType || "") !== filters.applicationType) {
+      if (filters.applicationType && (it.applicationType || "").toLowerCase() !== filters.applicationType.toLowerCase()) {
         return false
       }
 
-=======
->>>>>>> f12559a7a31043bf75c7344f5bc27883fdfdbda3
       // education subject/examType/medium
       if (filters.educationSubject || filters.educationExamType || filters.educationMedium) {
         const edu = (it.educationQualifications || []).some((e) => {
@@ -508,12 +505,9 @@ const Dashboard = () => {
                         Position
                       </th>
                       <th className="px-6 py-4 text-left text-sm font-semibold text-gray-700 dark:text-gray-200">
-<<<<<<< HEAD
                         Application Type
                       </th>
                       <th className="px-6 py-4 text-left text-sm font-semibold text-gray-700 dark:text-gray-200">
-=======
->>>>>>> f12559a7a31043bf75c7344f5bc27883fdfdbda3
                         Subject/Department
                       </th>
                       <th className="px-6 py-4 text-left text-sm font-semibold text-gray-700 dark:text-gray-200">
@@ -533,11 +527,7 @@ const Dashboard = () => {
                   <tbody className="divide-y divide-gray-100 dark:divide-gray-600">
                     {applyClientFilters(applications).length === 0 && !loading ? (
                       <tr>
-<<<<<<< HEAD
-                        <td colSpan={10} className="px-6 py-12 text-center">
-=======
                         <td colSpan={9} className="px-6 py-12 text-center">
->>>>>>> f12559a7a31043bf75c7344f5bc27883fdfdbda3
                           <div className="flex flex-col items-center gap-3">
                             <div className="w-16 h-16 bg-gradient-to-br from-gray-100 to-gray-200 dark:from-gray-700 dark:to-gray-600 rounded-2xl flex items-center justify-center">
                               <FaUsers className="text-2xl text-gray-400 dark:text-gray-300" />
@@ -608,11 +598,6 @@ const Dashboard = () => {
                                 </span>
                               );
                             })()}
-                          </td>
-                          <td className="px-6 py-4">
-                            <div className="text-sm text-gray-600 dark:text-gray-300">
-                              {app.subjectOrDepartment || "-"}
-                            </div>
                           </td>
                           <td className="px-6 py-4">
                             <div className="text-sm text-gray-600 dark:text-gray-300">

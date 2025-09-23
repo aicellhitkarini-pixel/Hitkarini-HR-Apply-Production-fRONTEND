@@ -12,7 +12,7 @@ function AdminLogin({ onLogin }) {
 
   const handleSubmit = (e) => {
     e.preventDefault();
-    if (username === "hitkarini@admin" && password === "hiktarini@hrauth") {
+    if (username === "hitkarini" && password === "#hiktarini") {
       localStorage.setItem("isAdmin", "true"); // ✅ store login state
       onLogin();
     } else {
