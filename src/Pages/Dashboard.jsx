@@ -542,11 +542,7 @@ const Dashboard = () => {
                   <tbody className="divide-y divide-gray-100 dark:divide-gray-600">
                     {applyClientFilters(applications).length === 0 && !loading ? (
                       <tr>
-<<<<<<< HEAD
                         <td colSpan={10} className="px-6 py-12 text-center">
-=======
-                        <td colSpan={9} className="px-6 py-12 text-center">
->>>>>>> f12559a7a31043bf75c7344f5bc27883fdfdbda3
                           <div className="flex flex-col items-center gap-3">
                             <div className="w-16 h-16 bg-gradient-to-br from-gray-100 to-gray-200 dark:from-gray-700 dark:to-gray-600 rounded-2xl flex items-center justify-center">
                               <FaUsers className="text-2xl text-gray-400 dark:text-gray-300" />
