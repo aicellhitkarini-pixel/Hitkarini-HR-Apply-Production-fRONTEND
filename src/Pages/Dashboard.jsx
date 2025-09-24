@@ -315,42 +315,75 @@ const Dashboard = () => {
       if (bulkMode) {
         const targets = applications.filter((a) => selectedIds.has(a._id) && a.email)
         let ok = 0
+        const updatedApps = []
+        
         for (const app of targets) {
           try {
-            const payload = { applicationId: app._id, to: app.email, subject: emailPayload.subject, message: emailPayload.message, status: emailPayload.status }
-            await axios.post(`${API_BASE}/sendemail`, payload)
+            const payload = { 
+              applicationId: app._id, 
+              to: app.email, 
+              subject: emailPayload.subject, 
+              message: emailPayload.message, 
+              status: emailPayload.status 
+            }
+            const resp = await axios.post(`${API_BASE}/sendemail`, payload)
+            const newStatus = resp?.data?.effectiveStatus || emailPayload.status
+            
+            // Update local state immediately for better UX
+            updatedApps.push({
+              ...app,
+              status: newStatus,
+              statusUpdatedAt: new Date().toISOString()
+            })
+            
             ok++
           } catch (e) {
             console.error("Bulk send failed for", app._id, e)
           }
         }
-        // Rely on server to derive latest status; trigger refetch below
+        
+        // Update all applications in state
+        if (updatedApps.length > 0) {
+          setApplications(prev => 
+            prev.map(app => {
+              const updated = updatedApps.find(u => u._id === app._id)
+              return updated || app
+            })
+          )
+        }
+        
         toast.success(`Emails sent: ${ok}/${targets.length}`)
         setShowEmailModal(false)
+        
+        // Refresh data from server to ensure consistency
+        fetchApplications({ page })
       } else {
-        const payload = { applicationId: selectedApp._id, ...emailPayload }
+        const payload = { 
+          applicationId: selectedApp._id, 
+          ...emailPayload 
+        }
         const resp = await axios.post(`${API_BASE}/sendemail`, payload)
         const newStatus = resp?.data?.effectiveStatus || emailPayload.status || "Interview"
+        
+        // Update local state immediately for better UX
+        setApplications(prev => 
+          prev.map(a => 
+            a._id === selectedApp._id 
+              ? { 
+                  ...a, 
+                  status: newStatus,
+                  statusUpdatedAt: new Date().toISOString()
+                } 
+              : a
+          )
+        )
+        
         toast.success("Email sent and logged")
         setShowEmailModal(false)
-        // Immediately fetch latest status for this application from the server and update the row
-        try {
-          const single = await axios.get(`${API_BASE}/applications/${selectedApp._id}`)
-          const fresh = single?.data?.data
-          if (fresh) {
-            setApplications((prev) => prev.map((a) => (a._id === fresh._id ? {
-              ...a,
-              status: fresh.status,
-              statusUpdatedAt: fresh.statusUpdatedAt || a.statusUpdatedAt,
-            } : a)))
-          }
-        } catch (e) {
-          // If single fetch fails, rely on the general refetch below
-          console.warn('Failed to fetch single application with status; will rely on list refetch', e)
-        }
+        
+        // Refresh data from server to ensure consistency
+        fetchApplications({ page })
       }
-      // refresh list to reflect latest derived status from mailHistory
-      fetchApplications({ page })
     } catch (err) {
       console.error(err)
       toast.error("Failed to send email")
