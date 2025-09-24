@@ -18,7 +18,7 @@ import {
   FaSun,
 } from "react-icons/fa"
 
-const API_BASE = "https://hitkarini-hr-wksup.ondigitalocean.app/api"
+const API_BASE = "http://localhost:8000/api"
 
 const Dashboard = () => {
   const [darkMode, setDarkMode] = useState(false)
@@ -214,14 +214,11 @@ const Dashboard = () => {
         return false
       }
 
-<<<<<<< HEAD
       // application type (school/college)
       if (filters.applicationType && (it.applicationType || "") !== filters.applicationType) {
         return false
       }
 
-=======
->>>>>>> f12559a7a31043bf75c7344f5bc27883fdfdbda3
       // education subject/examType/medium
       if (filters.educationSubject || filters.educationExamType || filters.educationMedium) {
         const edu = (it.educationQualifications || []).some((e) => {
@@ -327,15 +324,30 @@ const Dashboard = () => {
             console.error("Bulk send failed for", app._id, e)
           }
         }
+        // Rely on server to derive latest status; trigger refetch below
         toast.success(`Emails sent: ${ok}/${targets.length}`)
         setShowEmailModal(false)
       } else {
         const payload = { applicationId: selectedApp._id, ...emailPayload }
-        await axios.post(`${API_BASE}/sendemail`, payload)
+        const resp = await axios.post(`${API_BASE}/sendemail`, payload)
+        const newStatus = resp?.data?.effectiveStatus || emailPayload.status || "Interview"
         toast.success("Email sent and logged")
         setShowEmailModal(false)
-        // optionally update local selectedApp status if open elsewhere
-        setSelectedApp((prev) => (prev ? { ...prev, status: emailPayload.status } : prev))
+        // Immediately fetch latest status for this application from the server and update the row
+        try {
+          const single = await axios.get(`${API_BASE}/applications/${selectedApp._id}`)
+          const fresh = single?.data?.data
+          if (fresh) {
+            setApplications((prev) => prev.map((a) => (a._id === fresh._id ? {
+              ...a,
+              status: fresh.status,
+              statusUpdatedAt: fresh.statusUpdatedAt || a.statusUpdatedAt,
+            } : a)))
+          }
+        } catch (e) {
+          // If single fetch fails, rely on the general refetch below
+          console.warn('Failed to fetch single application with status; will rely on list refetch', e)
+        }
       }
       // refresh list to reflect latest derived status from mailHistory
       fetchApplications({ page })
@@ -508,12 +520,9 @@ const Dashboard = () => {
                         Position
                       </th>
                       <th className="px-6 py-4 text-left text-sm font-semibold text-gray-700 dark:text-gray-200">
-<<<<<<< HEAD
                         Application Type
                       </th>
                       <th className="px-6 py-4 text-left text-sm font-semibold text-gray-700 dark:text-gray-200">
-=======
->>>>>>> f12559a7a31043bf75c7344f5bc27883fdfdbda3
                         Subject/Department
                       </th>
                       <th className="px-6 py-4 text-left text-sm font-semibold text-gray-700 dark:text-gray-200">
@@ -533,28 +542,12 @@ const Dashboard = () => {
                   <tbody className="divide-y divide-gray-100 dark:divide-gray-600">
                     {applyClientFilters(applications).length === 0 && !loading ? (
                       <tr>
-<<<<<<< HEAD
                         <td colSpan={10} className="px-6 py-12 text-center">
-=======
-                        <td colSpan={9} className="px-6 py-12 text-center">
->>>>>>> f12559a7a31043bf75c7344f5bc27883fdfdbda3
                           <div className="flex flex-col items-center gap-3">
                             <div className="w-16 h-16 bg-gradient-to-br from-gray-100 to-gray-200 dark:from-gray-700 dark:to-gray-600 rounded-2xl flex items-center justify-center">
                               <FaUsers className="text-2xl text-gray-400 dark:text-gray-300" />
                             </div>
 
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 dark:text-gray-200 mb-2">
-                    Subject/Department
-                  </label>
-                  <input
-                    name="subjectOrDepartment"
-                    value={filters.subjectOrDepartment}
-                    onChange={handleFilterChange}
-                    placeholder="Subject or department"
-                    className="w-full px-3 py-2 border border-gray-200 dark:border-gray-600 rounded-lg text-sm bg-white dark:bg-gray-700 text-gray-800 dark:text-gray-100 focus:ring-2 focus:ring-gray-400 dark:focus:ring-gray-500 focus:border-transparent transition-all duration-200"
-                  />
-                </div>
                             <div>
                               <h3 className="font-medium text-gray-800 dark:text-gray-100">No applications found</h3>
                               <p className="text-sm text-gray-500 dark:text-gray-400">Try adjusting your filters</p>
@@ -597,6 +590,7 @@ const Dashboard = () => {
                               const t = (app.applicationType || "-").toString();
                               const isCollege = t.toLowerCase() === "college";
                               const isSchool = t.toLowerCase() === "school";
+
                               const cls = isCollege
                                 ? "from-violet-100 to-violet-200 dark:from-violet-700 dark:to-violet-600 text-violet-900 dark:text-white"
                                 : isSchool
@@ -608,11 +602,6 @@ const Dashboard = () => {
                                 </span>
                               );
                             })()}
-                          </td>
-                          <td className="px-6 py-4">
-                            <div className="text-sm text-gray-600 dark:text-gray-300">
-                              {app.subjectOrDepartment || "-"}
-                            </div>
                           </td>
                           <td className="px-6 py-4">
                             <div className="text-sm text-gray-600 dark:text-gray-300">
@@ -640,9 +629,16 @@ const Dashboard = () => {
                               };
                               const cls = map[s] || map.Pending;
                               return (
-                                <span className={`inline-flex items-center px-3 py-1 rounded-full text-xs font-semibold bg-gradient-to-r ${cls}`}>
-                                  {s}
-                                </span>
+                                <div className="flex flex-col gap-1">
+                                  <span className={`inline-flex items-center px-3 py-1 rounded-full text-xs font-semibold bg-gradient-to-r ${cls}`}>
+                                    {s}
+                                  </span>
+                                  {app.statusUpdatedAt ? (
+                                    <span className="text-[11px] text-gray-500 dark:text-gray-400">
+                                      Updated {new Date(app.statusUpdatedAt).toLocaleString()}
+                                    </span>
+                                  ) : null}
+                                </div>
                               );
                             })()}
                           </td>
