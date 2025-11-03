@@ -642,6 +642,7 @@ export default function ApplicationForm() {
                   <option value="">Select Application Type</option>
                   <option value="school">School</option>
                   <option value="college">College</option>
+                  <option value="others/administration">Others / Administration</option>
                 </Input>
               </div>
             </section>
